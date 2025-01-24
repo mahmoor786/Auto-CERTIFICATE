@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #001e4d;
+        }
+        #video-container {
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #001e4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #003366;
+        }
+        #start-quiz-btn {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <h1>Course Videos</h1>
+    <div id="video-container">
+        <iframe id="video" src="" allowfullscreen></iframe>
+    </div>
+    <button id="next-btn">Next Video</button>
+    <button id="start-quiz-btn">Start Quiz</button>
+
+    <script>
+        // List of YouTube video URLs
+        const videos = [
+            "https://www.youtube.com/embed/dQw4w9WgXcQ", // Video 1
+            "https://www.youtube.com/embed/3tmd-ClpJxA", // Video 2
+            "https://www.youtube.com/embed/5qap5aO4i9A", // Video 3
+            "https://www.youtube.com/embed/jfKfPfyJRdk"  // Video 4
+        ];
+
+        let currentVideoIndex = 0;
+
+        // Function to load the current video
+        function loadVideo() {
+            const videoElement = document.getElementById('video');
+            videoElement.src = videos[currentVideoIndex];
+
+            // Show the "Start Quiz" button on the last video
+            if (currentVideoIndex === videos.length - 1) {
+                document.getElementById('next-btn').style.display = 'none'; // Hide Next button
+                document.getElementById('start-quiz-btn').style.display = 'inline-block'; // Show Start Quiz button
+            } else {
+                document.getElementById('next-btn').style.display = 'inline-block'; // Show Next button
+                document.getElementById('start-quiz-btn').style.display = 'none'; // Hide Start Quiz button
+            }
+        }
+
+        // Load the first video when the page loads
+        loadVideo();
+
+        // Next button click event
+        document.getElementById('next-btn').addEventListener('click', () => {
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length; // Loop back to the first video after the last one
+            loadVideo();
+        });
+
+        // Start Quiz button click event
+        document.getElementById('start-quiz-btn').addEventListener('click', () => {
+            window.location.href = '/uiuc-quiz.html'; // Redirect to quiz.html
+        });
+    </script>
+</body>
+</html>

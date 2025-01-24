@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #001e4d;
+        }
+        .app {
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 100px auto 0;
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .app h1 {
+            font-size: 25px;
+            color: #001e4d;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+        .quiz {
+            padding: 20px 0;
+        }
+        #question {
+            font-size: 18px;
+            color: #001e4d;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            background: #fff;
+            color: #222;
+            font-weight: 500;
+            width: 100%;
+            border: 1px solid #222;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover:not([disabled]) {
+            background: #222;
+            color: #fff;
+        }
+        .btn:disabled {
+            cursor: no-drop;
+        }
+        #next-btn, #generate-pdf-btn {
+            background: #001e4d;
+            color: #fff;
+            font-weight: 500;
+            width: 150px;
+            border: 0;
+            padding: 10px;
+            margin: 20px auto 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+        .correct {
+            background: #9aeabc;
+        }
+        .incorrect {
+            background: #ff9393;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>JavaScript Quiz</h1>
+        <div class="quiz"></div>
+        <h2 id="question">Question goes here</h2>
+        <div id="answer-button">
+            <button class="btn">Answer 1</button>
+            <button class="btn">Answer 2</button>
+            <button class="btn">Answer 3</button>
+            <button class="btn">Answer 4</button>
+        </div>
+        <button id="next-btn">Next</button>
+        <button id="generate-pdf-btn">Generate PDF</button>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "What is JavaScript primarily used for?",
+                answers: [
+                    { text: "Adding interactivity to web pages", correct: true },
+                    { text: "Styling web pages", correct: false },
+                    { text: "Managing databases", correct: false },
+                    { text: "Creating server-side applications", correct: false },
+                ]
+            },
+            {
+                question: "Which keyword is used to declare a variable in JavaScript?",
+                answers: [
+                    { text: "let", correct: true },
+                    { text: "var", correct: false },
+                    { text: "const", correct: false },
+                    { text: "int", correct: false },
+                ]
+            },
+            {
+                question: "What does the 'DOM' stand for in JavaScript?",
+                answers: [
+                    { text: "Document Object Model", correct: true },
+                    { text: "Data Object Model", correct: false },
+                    { text: "Document Oriented Model", correct: false },
+                    { text: "Dynamic Object Model", correct: false },
+                ]
+            },
+            {
+                question: "Which function is used to print something to the console in JavaScript?",
+                answers: [
+                    { text: "console.log()", correct: true },
+                    { text: "print()", correct: false },
+                    { text: "log()", correct: false },
+                    { text: "console.print()", correct: false },
+                ]
+            }
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtons = document.getElementById("answer-button");
+        const nextButton = document.getElementById("next-btn");
+        const generatePdfButton = document.getElementById("generate-pdf-btn");
+
+        let currentQuestionIndex, score;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerHTML = "Next";
+            showQuestion(currentQuestionIndex);
+        }
+
+        function showQuestion(index) {
+            resetState();
+            let currentQuestion = questions[index];
+            let questionNO = index + 1;
+            questionElement.innerHTML = questionNO + ". " + currentQuestion.question;
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerHTML = answer.text;
+                button.classList.add("btn");
+                answerButtons.appendChild(button);
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            generatePdfButton.style.display = "none";
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+            Array.from(answerButtons.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+            nextButton.style.display = "block";
+        }
+
+        nextButton.addEventListener("click", () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+            } else {
+                showScore();
+            }
+        });
+
+        function showScore() {
+            resetState();
+            const totalQuestions = questions.length;
+            const percentage = (score / totalQuestions) * 100;
+
+            questionElement.innerHTML = `Quiz completed! Your score is ${score} out of ${totalQuestions}.`;
+
+            if (percentage >= 80) {
+                generatePdfButton.style.display = "block"; // Show Generate PDF button
+            }
+
+            nextButton.innerHTML = "Restart";
+            nextButton.style.display = "block";
+            nextButton.addEventListener("click", startQuiz);
+        }
+
+        // Redirect to pdf.html when Generate PDF button is clicked
+        generatePdfButton.addEventListener("click", () => {
+            window.location.href = "/js-cert.html";
+        });
+
+        startQuiz();
+    </script>
+</body>
+</html>

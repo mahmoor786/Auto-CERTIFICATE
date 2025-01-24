@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI/UX Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #001e4d;
+        }
+        .app {
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 100px auto 0;
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .app h1 {
+            font-size: 25px;
+            color: #001e4d;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+        .quiz {
+            padding: 20px 0;
+        }
+        #question {
+            font-size: 18px;
+            color: #001e4d;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            background: #fff;
+            color: #222;
+            font-weight: 500;
+            width: 100%;
+            border: 1px solid #222;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover:not([disabled]) {
+            background: #222;
+            color: #fff;
+        }
+        .btn:disabled {
+            cursor: no-drop;
+        }
+        #next-btn, #generate-pdf-btn {
+            background: #001e4d;
+            color: #fff;
+            font-weight: 500;
+            width: 150px;
+            border: 0;
+            padding: 10px;
+            margin: 20px auto 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+        .correct {
+            background: #9aeabc;
+        }
+        .incorrect {
+            background: #ff9393;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>UI/UX Quiz</h1>
+        <div class="quiz"></div>
+        <h2 id="question">Question goes here</h2>
+        <div id="answer-button">
+            <button class="btn">Answer 1</button>
+            <button class="btn">Answer 2</button>
+            <button class="btn">Answer 3</button>
+            <button class="btn">Answer 4</button>
+        </div>
+        <button id="next-btn">Next</button>
+        <button id="generate-pdf-btn">Generate PDF</button>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "What does UI stand for?",
+                answers: [
+                    { text: "User Interface", correct: true },
+                    { text: "User Interaction", correct: false },
+                    { text: "User Integration", correct: false },
+                    { text: "User Intelligence", correct: false },
+                ]
+            },
+            {
+                question: "What is the primary goal of UX design?",
+                answers: [
+                    { text: "To enhance user satisfaction and usability", correct: true },
+                    { text: "To make websites look visually appealing", correct: false },
+                    { text: "To increase website loading speed", correct: false },
+                    { text: "To optimize search engine rankings", correct: false },
+                ]
+            },
+            {
+                question: "Which tool is commonly used for UI/UX design?",
+                answers: [
+                    { text: "Figma", correct: true },
+                    { text: "Photoshop", correct: false },
+                    { text: "Excel", correct: false },
+                    { text: "WordPress", correct: false },
+                ]
+            },
+            {
+                question: "What is a wireframe in UI/UX design?",
+                answers: [
+                    { text: "A visual guide that represents the skeletal framework of a website", correct: true },
+                    { text: "A high-fidelity prototype of a website", correct: false },
+                    { text: "A tool for creating animations", correct: false },
+                    { text: "A type of color palette", correct: false },
+                ]
+            }
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtons = document.getElementById("answer-button");
+        const nextButton = document.getElementById("next-btn");
+        const generatePdfButton = document.getElementById("generate-pdf-btn");
+
+        let currentQuestionIndex, score;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerHTML = "Next";
+            showQuestion(currentQuestionIndex);
+        }
+
+        function showQuestion(index) {
+            resetState();
+            let currentQuestion = questions[index];
+            let questionNO = index + 1;
+            questionElement.innerHTML = questionNO + ". " + currentQuestion.question;
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerHTML = answer.text;
+                button.classList.add("btn");
+                answerButtons.appendChild(button);
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            generatePdfButton.style.display = "none";
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+            Array.from(answerButtons.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+            nextButton.style.display = "block";
+        }
+
+        nextButton.addEventListener("click", () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+            } else {
+                showScore();
+            }
+        });
+
+        function showScore() {
+            resetState();
+            const totalQuestions = questions.length;
+            const percentage = (score / totalQuestions) * 100;
+
+            questionElement.innerHTML = `Quiz completed! Your score is ${score} out of ${totalQuestions}.`;
+
+            if (percentage >= 80) {
+                generatePdfButton.style.display = "block"; // Show Generate PDF button
+            }
+
+            nextButton.innerHTML = "Restart";
+            nextButton.style.display = "block";
+            nextButton.addEventListener("click", startQuiz);
+        }
+
+        // Redirect to pdf.html when Generate PDF button is clicked
+        generatePdfButton.addEventListener("click", () => {
+            window.location.href = "/uiux-cert.html";
+        });
+
+        startQuiz();
+    </script>
+</body>
+</html>

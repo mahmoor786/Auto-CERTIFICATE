@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator</title>
+    <style>
+        /* Container to position the certificate image and the name */
+        .certificate-container {
+            position: relative;
+            width: 800px; /* Adjust to match the size of your certificate image */
+            margin: 0 auto;
+        }
+
+        /* Style for the certificate image */
+        .certificate-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Style for the name display */
+        .name-display {
+            position: absolute;
+            top: 50%; /* Adjust this value to position the name correctly */
+            left: 50%; /* Adjust this value to position the name correctly */
+            transform: translate(-50%, -50%);
+            font-size: 24px; /* Adjust font size as needed */
+            font-family: Arial, sans-serif;
+            color: #000; /* Text color */
+            text-align: center;
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <!-- Certificate Image -->
+        <img src="uiux.png" alt="Certificate" class="certificate-image">
+
+        <!-- Display the user's name -->
+        <div class="name-display" id="nameDisplay"></div>
+    </div>
+
+    <script>
+        // Fetch the user's name from the backend API
+        fetch('/api/user')
+            .then((response) => response.json())
+            .then((data) => {
+                const userName = data.name;
+
+                // Display the user's name on the certificate
+                const nameDisplay = document.getElementById('nameDisplay');
+                nameDisplay.innerText = userName;
+            })
+            .catch((error) => {
+                console.error('Error fetching user data:', error);
+            });
+    </script>
+</body>
+</html>
